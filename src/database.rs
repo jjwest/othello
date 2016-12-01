@@ -3,9 +3,13 @@ use super::entities::{Point, Color, GameStateEntity};
 use std::collections::HashMap;
 use std::io;
 
+use errors::*;
+
+use serde_json;
+
 pub trait DatabaseConnection {
-    fn save_state(&mut self, state: GameStateEntity) -> io::Result<()>;
-    fn load_state(&self) -> io::Result<GameStateEntity>;
+    fn save_state(&mut self, state: GameStateEntity) -> OthelloResult<()>;
+    fn load_state(&self) -> OthelloResult<GameStateEntity>;
 }
 
 pub struct Database {
@@ -27,12 +31,15 @@ impl Database {
 }
 
 impl DatabaseConnection for Database {
-    fn save_state(&mut self, state: GameStateEntity) -> io::Result<()> {
-        self.state = state;
+    fn save_state(&mut self, state: GameStateEntity) -> OthelloResult<()> {
+        let board = state.board.into_iter().collect::<Vec<_>>();
+        let serialized_board = serde_json::to_string(&board)?;
+        let serialized_player = serde_json::to_string(&state.active_player)?;
+        let serialized_player = serde_json::to_string(&state.active_player)?;
         Ok(())
     }
 
-    fn load_state(&self) -> io::Result<GameStateEntity> {
+    fn load_state(&self) -> OthelloResult<GameStateEntity> {
         Ok(self.state.clone())
     }
 }

@@ -40,3 +40,22 @@ fn test_if_enclosing_friendly() {
     assert!(ok_placements.iter().all(|pos| rule.is_valid(pos, &state)));
     assert!(!rule.is_valid(&bad_placement, &state));
 }
+
+#[test]
+fn test_capture() {
+    let rules = RuleBook::new();
+    let database = Database::new();
+    let mut logic = Logic::new(rules, database);
+
+    let new_state = logic.place_tile(Point::new(5, 3)).unwrap();
+    let black_tile_count = new_state.board.values()
+        .filter(|&val| *val == Color::Black)
+        .count();
+
+    let white_tile_count = new_state.board.values()
+        .filter(|&val| *val == Color::White)
+        .count();
+
+    assert_eq!(4, black_tile_count);
+    assert_eq!(1, white_tile_count);
+}

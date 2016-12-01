@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Clone, Hash, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -12,7 +12,7 @@ impl Point {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Color {
     Black,
     White,
@@ -20,7 +20,7 @@ pub enum Color {
 
 pub type GameBoard = HashMap<Point, Color>;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct GameStateEntity {
     pub board: GameBoard,
     pub active_player: Color,
