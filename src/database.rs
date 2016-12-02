@@ -1,7 +1,9 @@
 use super::entities::{Point, Color, GameStateEntity};
 
 use std::collections::HashMap;
-use std::io;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
 
 use errors::*;
 
@@ -12,34 +14,60 @@ pub trait DatabaseConnection {
     fn load_state(&self) -> OthelloResult<GameStateEntity>;
 }
 
-pub struct Database {
-    state: GameStateEntity,
+pub struct Database<'a> {
+    location: &'a Path,
 }
 
-impl Database {
-    pub fn new() -> Database {
-        let mut board = HashMap::new();
-        board.insert(Point::new(3, 3), Color::Black);
-        board.insert(Point::new(4, 4), Color::Black);
-        board.insert(Point::new(4, 3), Color::White);
-        board.insert(Point::new(3, 4), Color::White);
-
+impl<'a> Database<'a> {
+    pub fn new(location: &Path) -> Database {
         Database {
-            state: GameStateEntity::new(board, Color::Black, None),
+            location: location,
         }
     }
 }
 
-impl DatabaseConnection for Database {
+impl<'a> DatabaseConnection for Database<'a> {
     fn save_state(&mut self, state: GameStateEntity) -> OthelloResult<()> {
-        let board = state.board.into_iter().collect::<Vec<_>>();
-        let serialized_board = serde_json::to_string(&board)?;
-        let serialized_player = serde_json::to_string(&state.active_player)?;
-        let serialized_player = serde_json::to_string(&state.active_player)?;
+        let serializable = SerializableState::from(state);
+        let serialized = serde_json::to_string(&serializable)?;
+
+        let mut file = File::create(self.location)?;
+        write!(&mut file, "{}", serialized)?;
+
         Ok(())
     }
 
     fn load_state(&self) -> OthelloResult<GameStateEntity> {
-        Ok(self.state.clone())
+        let mut file = File::open(self.location)?;
+        let mut serialized = String::new();
+        file.read_to_string(&mut serialized)?;
+        let deserialized = serde_json::from_str(&serialized)?;
+
+        Ok(SerializableState::into_state(deserialized))
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct SerializableState {
+    active_player: Color,
+    winner: Option<Color>,
+    board: Vec<(Point, Color)>,
+}
+
+impl SerializableState {
+    fn from(state: GameStateEntity) -> SerializableState {
+        SerializableState {
+            active_player: state.active_player,
+            winner: state.winner,
+            board: state.board.into_iter().collect(),
+        }
+    }
+
+    fn into_state(state: SerializableState) -> GameStateEntity {
+        GameStateEntity::new(
+            state.board.into_iter().collect(),
+            state.active_player,
+            state.winner
+        )
     }
 }

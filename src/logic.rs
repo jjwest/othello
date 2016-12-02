@@ -3,8 +3,6 @@ use database::DatabaseConnection;
 use entities::*;
 use errors::*;
 
-use std::io;
-
 pub struct Logic<T: DatabaseConnection> {
     rules: RuleBook,
     database: T,

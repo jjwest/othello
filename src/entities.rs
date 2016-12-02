@@ -20,7 +20,7 @@ pub enum Color {
 
 pub type GameBoard = HashMap<Point, Color>;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
 pub struct GameStateEntity {
     pub board: GameBoard,
     pub active_player: Color,

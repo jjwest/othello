@@ -15,17 +15,17 @@ pub mod errors;
 #[cfg(test)]
 mod tests;
 
-pub use database::*;
-pub use entities::*;
-pub use rules::*;
-
+use database::Database;
+use entities::*;
 use logic::Logic;
+use rules::*;
+use std::path::Path;
 
 fn main() {
     let rules = load_rules();
-    let database = Database::new();
+    let database = Database::new(&Path::new("database.json"));
     let mut logic = Logic::new(rules, database);
-    let state = logic.place_tile(Point::new(3, 5)).unwrap();
+    let state = logic.place_tile(Point::new(4, 5)).unwrap();
 
     for (pos, color) in &state.board {
         println!("{:#?}: {:#?}", color, pos);
