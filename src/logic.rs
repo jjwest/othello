@@ -16,16 +16,15 @@ impl<T: DatabaseConnection> Logic<T> {
         }
     }
 
-    pub fn place_tile(&mut self, position: Point) -> Result<GameStateEntity, OthelloError> {
+    pub fn place_tile(&mut self, position: Point) -> OthelloResult<GameStateEntity> {
         let mut state = self.database.load_state()?;
 
         if self.rules.placement_allowed(&position, &state) {
             state.board.insert(position.clone(), state.active_player.clone());
-
             convert_tiles(&position, &mut state);
             state.active_player = match state.active_player {
-                Color::Black => Color::White,
-                Color::White => Color::Black,
+                Player::Black => Player::White,
+                Player::White => Player::Black,
             };
             self.database.save_state(state)?;
             self.database.load_state()

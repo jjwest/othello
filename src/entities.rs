@@ -13,22 +13,22 @@ impl Point {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum Color {
+pub enum Player {
     Black,
     White,
 }
 
-pub type GameBoard = HashMap<Point, Color>;
+pub type GameBoard = HashMap<Point, Player>;
 
 #[derive(Clone, Debug)]
 pub struct GameStateEntity {
     pub board: GameBoard,
-    pub active_player: Color,
-    pub winner: Option<Color>,
+    pub active_player: Player,
+    pub winner: Option<Player>,
 }
 
 impl GameStateEntity {
-    pub fn new(board: GameBoard, active_player: Color, winner: Option<Color>) -> GameStateEntity {
+    pub fn new(board: GameBoard, active_player: Player, winner: Option<Player>) -> GameStateEntity {
         GameStateEntity {
             board: board,
             active_player: active_player,

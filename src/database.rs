@@ -1,11 +1,11 @@
-use super::entities::{Point, Color, GameStateEntity};
+use super::entities::{Point, Player, GameStateEntity};
 
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use errors::*;
+use errors::OthelloResult;
 
 use serde_json;
 
@@ -38,20 +38,29 @@ impl<'a> DatabaseConnection for Database<'a> {
     }
 
     fn load_state(&self) -> OthelloResult<GameStateEntity> {
-        let mut file = File::open(self.location)?;
-        let mut serialized = String::new();
-        file.read_to_string(&mut serialized)?;
-        let deserialized = serde_json::from_str(&serialized)?;
+        if let Ok(mut file) = File::open(self.location) {
+            let mut serialized = String::new();
+            file.read_to_string(&mut serialized)?;
+            let deserialized = serde_json::from_str(&serialized)?;
 
-        Ok(SerializableState::into_state(deserialized))
+            Ok(SerializableState::into_state(deserialized))
+        } else {
+            let mut board = HashMap::new();
+            board.insert(Point::new(3, 3), Player::Black);
+            board.insert(Point::new(4, 4), Player::Black);
+            board.insert(Point::new(3, 4), Player::White);
+            board.insert(Point::new(4, 3), Player::White);
+
+            Ok(GameStateEntity::new(board, Player::Black, None))
+        }
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct SerializableState {
-    active_player: Color,
-    winner: Option<Color>,
-    board: Vec<(Point, Color)>,
+    active_player: Player,
+    winner: Option<Player>,
+    board: Vec<(Point, Player)>,
 }
 
 impl SerializableState {

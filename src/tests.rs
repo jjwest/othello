@@ -1,13 +1,45 @@
 use super::*;
+use errors::OthelloResult;
+
+struct MockDatabase {
+    state: GameStateEntity
+}
+
+impl MockDatabase {
+    fn new() -> MockDatabase {
+        use std::collections::HashMap;
+
+        let mut board = HashMap::new();
+        board.insert(Point::new(3, 3), Player::Black);
+        board.insert(Point::new(4, 4), Player::Black);
+        board.insert(Point::new(3, 4), Player::White);
+        board.insert(Point::new(4, 3), Player::White);
+
+        MockDatabase {
+            state: GameStateEntity::new(board, Player::Black, None),
+        }
+    }
+}
+
+impl database::DatabaseConnection for MockDatabase {
+    fn load_state(&self) -> OthelloResult<GameStateEntity> {
+        Ok(self.state.clone())
+    }
+
+    fn save_state(&mut self, state: GameStateEntity) -> OthelloResult<()> {
+        self.state = state;
+        Ok(())
+    }
+}
 
 #[test]
 fn exist_adjacent_enemy() {
     let mut board = GameBoard::new();
-    board.insert(Point::new(4, 4), Color::Black);
-    board.insert(Point::new(3, 4), Color::White);
+    board.insert(Point::new(4, 4), Player::Black);
+    board.insert(Point::new(3, 4), Player::White);
 
     let rule = MustExistAdjacentEnemy;
-    let state = GameStateEntity::new(board, Color::Black, None);
+    let state = GameStateEntity::new(board, Player::Black, None);
 
     assert!(rule.is_valid(&Point::new(2, 4), &state));
 }
@@ -15,19 +47,19 @@ fn exist_adjacent_enemy() {
 #[test]
 fn test_if_enclosing_friendly() {
     let mut board = GameBoard::new();
-    board.insert(Point::new(4, 4), Color::Black); // Center
-    board.insert(Point::new(3, 4), Color::White); // Left
-    board.insert(Point::new(5, 4), Color::White); // Right
-    board.insert(Point::new(4, 5), Color::White); // Bottom
-    board.insert(Point::new(4, 3), Color::White); // Top
-    board.insert(Point::new(3, 3), Color::White); // Top-left
-    board.insert(Point::new(5, 3), Color::White); // Top-right
-    board.insert(Point::new(3, 5), Color::White); // Bottom-left
-    board.insert(Point::new(5, 5), Color::White); // Bottom-right
+    board.insert(Point::new(4, 4), Player::Black); // Center
+    board.insert(Point::new(3, 4), Player::White); // Left
+    board.insert(Point::new(5, 4), Player::White); // Right
+    board.insert(Point::new(4, 5), Player::White); // Bottom
+    board.insert(Point::new(4, 3), Player::White); // Top
+    board.insert(Point::new(3, 3), Player::White); // Top-left
+    board.insert(Point::new(5, 3), Player::White); // Top-right
+    board.insert(Point::new(3, 5), Player::White); // Bottom-left
+    board.insert(Point::new(5, 5), Player::White); // Bottom-right
 
 
     let rule = MustExistAdjacentEnemy;
-    let state = GameStateEntity::new(board, Color::Black, None);
+    let state = GameStateEntity::new(board, Player::Black, None);
 
     let ok_placements = vec![
         Point::new(2, 2), Point::new(4, 2), Point::new(6, 2),
@@ -44,16 +76,16 @@ fn test_if_enclosing_friendly() {
 #[test]
 fn test_capture() {
     let rules = RuleBook::new();
-    let database = Database::new();
+    let database = MockDatabase::new();
     let mut logic = Logic::new(rules, database);
 
     let new_state = logic.place_tile(Point::new(5, 3)).unwrap();
     let black_tile_count = new_state.board.values()
-        .filter(|&val| *val == Color::Black)
+        .filter(|&val| *val == Player::Black)
         .count();
 
     let white_tile_count = new_state.board.values()
-        .filter(|&val| *val == Color::White)
+        .filter(|&val| *val == Player::White)
         .count();
 
     assert_eq!(4, black_tile_count);
