@@ -1,12 +1,14 @@
-use rules::*;
-use database::DatabaseConnection;
-use entities::*;
-use errors::*;
+
+use super::rules::RuleBook;
+use super::database::DatabaseConnection;
+use super::entities::*;
+use super::errors::*;
 
 pub struct Logic<T: DatabaseConnection> {
     rules: RuleBook,
     database: T,
 }
+
 
 impl<T: DatabaseConnection> Logic<T> {
     pub fn new(rules: RuleBook, database: T) -> Logic<T> {
@@ -16,9 +18,8 @@ impl<T: DatabaseConnection> Logic<T> {
         }
     }
 
-    pub fn place_tile(&mut self, position: Point) -> OthelloResult<GameStateEntity> {
+    pub fn place_tile(&mut self, position: Point) -> Result<GameStateEntity> {
         let mut state = self.database.load_state()?;
-
         if self.rules.placement_allowed(&position, &state) {
             state.board.insert(position.clone(), state.active_player.clone());
             convert_tiles(&position, &mut state);

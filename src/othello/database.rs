@@ -1,3 +1,12 @@
+#![feature(proc_macro)]
+
+#[macro_use]
+extern crate serde_derive;
+
+extern crate serde;
+extern crate serde_json;
+
+
 use super::entities::{Point, Player, GameStateEntity};
 
 use std::collections::HashMap;
@@ -5,13 +14,13 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use errors::OthelloResult;
+use errors::Result;
 
 use serde_json;
 
 pub trait DatabaseConnection {
-    fn save_state(&mut self, state: GameStateEntity) -> OthelloResult<()>;
-    fn load_state(&self) -> OthelloResult<GameStateEntity>;
+    fn save_state(&mut self, state: GameStateEntity) -> Result<()>;
+    fn load_state(&self) -> Result<GameStateEntity>;
 }
 
 pub struct Database<'a> {
@@ -27,7 +36,7 @@ impl<'a> Database<'a> {
 }
 
 impl<'a> DatabaseConnection for Database<'a> {
-    fn save_state(&mut self, state: GameStateEntity) -> OthelloResult<()> {
+    fn save_state(&mut self, state: GameStateEntity) -> Result<()> {
         let serializable = SerializableState::from(state);
         let serialized = serde_json::to_string(&serializable)?;
 
@@ -37,7 +46,7 @@ impl<'a> DatabaseConnection for Database<'a> {
         Ok(())
     }
 
-    fn load_state(&self) -> OthelloResult<GameStateEntity> {
+    fn load_state(&self) -> Result<GameStateEntity> {
         if let Ok(mut file) = File::open(self.location) {
             let mut serialized = String::new();
             file.read_to_string(&mut serialized)?;

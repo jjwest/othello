@@ -22,7 +22,7 @@ impl MockDatabase {
 }
 
 impl database::DatabaseConnection for MockDatabase {
-    fn load_state(&self) -> OthelloResult<GameStateEntity> {
+    fn load_state(&self) -> Result<GameStateEntity> {
         Ok(self.state.clone())
     }
 
@@ -75,11 +75,9 @@ fn test_if_enclosing_friendly() {
 
 #[test]
 fn test_capture() {
-    let rules = RuleBook::new();
-    let database = MockDatabase::new();
-    let mut logic = Logic::new(rules, database);
-
+    let mut logic = Logic::new(RuleBook::new(), MockDatabase::new());
     let new_state = logic.place_tile(Point::new(5, 3)).unwrap();
+
     let black_tile_count = new_state.board.values()
         .filter(|&val| *val == Player::Black)
         .count();

@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["jonas"]
 
 [dependencies]
+gtk = "*"
 serde = "*"
-serde_json = "*"
 serde_derive = "*"
+serde_json = "*"

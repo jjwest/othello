@@ -1,24 +1,6 @@
-#![feature(proc_macro)]
+mod othello;
+use othello::*;
 
-#[macro_use]
-extern crate serde_derive;
-
-extern crate serde;
-extern crate serde_json;
-
-pub mod database;
-pub mod logic;
-pub mod rules;
-pub mod entities;
-pub mod errors;
-
-#[cfg(test)]
-mod tests;
-
-use database::Database;
-use entities::*;
-use logic::Logic;
-use rules::*;
 use std::path::Path;
 
 fn main() {
@@ -26,7 +8,7 @@ fn main() {
     let database = Database::new(&Path::new("database.json"));
     let mut logic = Logic::new(rules, database);
     let _ = logic.place_tile(Point::new(5, 3)).unwrap();
-    let state = logic.place_tile(Point::new(4, 2)).unwrap();
+    let state = logic.place_tile(Point::new(3, 2)).unwrap();
 
     for (pos, color) in &state.board {
         println!("{:#?}: {:#?}", color, pos);
