@@ -1,18 +1,31 @@
+#![feature(proc_macro)]
+
+#[macro_use]
+extern crate serde_derive;
+
+extern crate serde;
+extern crate serde_json;
+extern crate gtk;
+
 mod othello;
 use othello::*;
+use gtk::prelude::*;
 
 use std::path::Path;
 
 fn main() {
+    if gtk::init().is_err() {
+        println!("Failed to initialize GTK.");
+        return;
+    }
+
+
     let rules = load_rules();
     let database = Database::new(&Path::new("database.json"));
-    let mut logic = Logic::new(rules, database);
-    let _ = logic.place_tile(Point::new(5, 3)).unwrap();
-    let state = logic.place_tile(Point::new(3, 2)).unwrap();
+    let logic = Logic::new(rules, database);
+    let gui = Gui::new(logic);
 
-    for (pos, color) in &state.board {
-        println!("{:#?}: {:#?}", color, pos);
-    }
+    gtk::main();
 }
 
 fn load_rules() -> RuleBook {
