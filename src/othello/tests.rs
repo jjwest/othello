@@ -1,5 +1,5 @@
 use super::*;
-use errors::OthelloResult;
+use errors::Result;
 
 struct MockDatabase {
     state: GameStateEntity
@@ -26,7 +26,7 @@ impl database::DatabaseConnection for MockDatabase {
         Ok(self.state.clone())
     }
 
-    fn save_state(&mut self, state: GameStateEntity) -> OthelloResult<()> {
+    fn save_state(&mut self, state: GameStateEntity) -> Result<()> {
         self.state = state;
         Ok(())
     }

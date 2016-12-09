@@ -1,15 +1,14 @@
 #![feature(proc_macro)]
 
+extern crate gtk;
+extern crate hyper;
+extern crate serde;
 #[macro_use]
 extern crate serde_derive;
-
-extern crate serde;
 extern crate serde_json;
-extern crate gtk;
 
 mod othello;
 use othello::*;
-use gtk::prelude::*;
 
 use std::path::Path;
 
@@ -18,7 +17,6 @@ fn main() {
         println!("Failed to initialize GTK.");
         return;
     }
-
 
     let rules = load_rules();
     let database = Database::new(&Path::new("database.json"));
