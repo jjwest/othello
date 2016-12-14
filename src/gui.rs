@@ -1,9 +1,11 @@
 use gtk::prelude::*;
-use gtk::{Window, WindowType, WindowPosition, Orientation};
+use gtk::{Box, Button, DrawingArea, Grid,
+          Menu, MenuBar, MenuItem, Orientation,
+          Overlay, Window, WindowPosition, WindowType};
 use gtk;
 
-use traits::*;
 use entities::*;
+use traits::*;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -11,6 +13,7 @@ use std::rc::Rc;
 const SQUARE_SIZE: i32 = 50;
 const BOARD_SIZE: i32 = 8;
 
+#[allow(dead_code)]
 pub struct Gui<T: Logic> {
     logic: Rc<RefCell<T>>,
     curr_state: Rc<RefCell<GameStateEntity>>,
@@ -32,15 +35,26 @@ impl<T: Logic + 'static> Gui<T> {
             Inhibit(false)
         });
 
-        let vbox = gtk::Box::new(Orientation::Vertical, 2);
+        let vbox = Box::new(Orientation::Vertical, 2);
         window.add(&vbox);
 
-        let menu_bar = gtk::MenuBar::new();
-        let othello = gtk::MenuItem::new_with_label("Othello");
-        let othello_menu = gtk::Menu::new();
-        let new_game = gtk::MenuItem::new_with_label("Start new game");
-        let quit = gtk::MenuItem::new_with_label("Quit");
+        let menu_bar = MenuBar::new();
+        let othello = MenuItem::new_with_label("Othello");
+        let othello_menu = Menu::new();
+        let new_game = MenuItem::new_with_label("Start new game");
+        let quit = MenuItem::new_with_label("Quit");
+        let grid = Grid::new();
 
+
+        {
+            let state = initial_state.clone();
+            let logic = logic.clone();
+            let grid = grid.clone();
+            new_game.connect_activate(move |_| {
+                *state.borrow_mut() = logic.borrow_mut().reset_state().unwrap();
+                grid.queue_draw();
+            });
+        }
         quit.connect_activate(|_| gtk::main_quit());
 
 
@@ -50,15 +64,14 @@ impl<T: Logic + 'static> Gui<T> {
         menu_bar.append(&othello);
         vbox.add(&menu_bar);
 
-        let grid = gtk::Grid::new();
 
         for y in 0..BOARD_SIZE {
             for x in 0..BOARD_SIZE {
-                let background = gtk::DrawingArea::new();
+                let background = DrawingArea::new();
                 background.set_size_request(SQUARE_SIZE, SQUARE_SIZE);
                 let state = initial_state.clone();
                 background.connect_draw(move |_, cr| {
-                    cr.set_source_rgb(0.2, 0.4, 0.8);
+                    cr.set_source_rgb(0.0, 0.4, 0.0);
                     cr.rectangle(0.0, 0.0, SQUARE_SIZE as f64, SQUARE_SIZE as f64);
                     cr.fill_preserve();
                     cr.set_source_rgb(0.0, 0.0, 0.0);
@@ -79,24 +92,26 @@ impl<T: Logic + 'static> Gui<T> {
                         cr.new_path();
                     }
 
-                    gtk::Inhibit(false)
+                    Inhibit(false)
                 });
 
-                let button = gtk::Button::new();
+                let button = Button::new();
                 button.set_size_request(50, 50);
                 button.set_opacity(0.0);
 
-                let overlay = gtk::Overlay::new();
+                let overlay = Overlay::new();
                 overlay.add(&background);
                 overlay.add_overlay(&button);
                 grid.attach(&overlay, x, y, 1, 1);
 
                 let logic = logic.clone();
                 let state = initial_state.clone();
+                let grid = grid.clone();
                 button.connect_clicked(move |_| {
                     let mut logic = logic.borrow_mut();
                     if let Ok(new_state) = logic.place_tile(Point::new(x, y)) {
                         *state.borrow_mut() = new_state;
+                        grid.queue_draw();
                     }
                 });
             }

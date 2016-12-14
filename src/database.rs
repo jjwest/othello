@@ -37,7 +37,7 @@ impl<'a> Database<'a> {
 impl<'a> DatabaseConnection for Database<'a> {
     fn save_state(&mut self, state: GameStateEntity) -> Result<()> {
         let serializable = SerializableState::from(state);
-        let serialized = serde_json::to_string(&serializable)?;
+        let serialized = serde_json::to_string_pretty(&serializable)?;
 
         let mut file = File::create(self.location)?;
         write!(&mut file, "{}", serialized)?;
