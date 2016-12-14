@@ -1,6 +1,5 @@
 #![feature(proc_macro)]
 
-extern crate glib;
 extern crate gtk;
 extern crate serde;
 #[macro_use]
