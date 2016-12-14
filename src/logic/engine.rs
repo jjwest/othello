@@ -1,24 +1,16 @@
+use entities::*;
+use errors::*;
+use traits::{Logic, DatabaseConnection};
 
-use super::rules::RuleBook;
-use super::database::DatabaseConnection;
-use super::entities::*;
-use super::errors::*;
+use super::RuleBook;
 
-pub struct Logic<T: DatabaseConnection> {
+pub struct GameLogic<T: DatabaseConnection> {
     rules: RuleBook,
     database: T,
 }
 
-
-impl<T: DatabaseConnection> Logic<T> {
-    pub fn new(rules: RuleBook, database: T) -> Logic<T> {
-        Logic {
-            rules: rules,
-            database: database,
-        }
-    }
-
-    pub fn place_tile(&mut self, position: Point) -> Result<GameStateEntity> {
+impl<D: DatabaseConnection> Logic for GameLogic<D> {
+    fn place_tile(&mut self, position: Point) -> Result<GameStateEntity> {
         let mut state = self.database.load_state()?;
 
         if self.rules.placement_allowed(&position, &state) {
@@ -32,6 +24,23 @@ impl<T: DatabaseConnection> Logic<T> {
             self.database.load_state()
         } else {
             Ok(state)
+        }
+    }
+
+    fn get_initial_state(&self) -> Result<GameStateEntity> {
+        self.database.load_state()
+    }
+
+    fn reset_state(&mut self) -> Result<GameStateEntity> {
+        self.database.reset_state()
+    }
+}
+
+impl<D: DatabaseConnection> GameLogic<D> {
+    pub fn new(rules: RuleBook, database: D) -> GameLogic<D> {
+        GameLogic {
+            rules: rules,
+            database: database,
         }
     }
 }

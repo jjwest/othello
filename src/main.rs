@@ -1,15 +1,22 @@
 #![feature(proc_macro)]
 
+extern crate glib;
 extern crate gtk;
-extern crate hyper;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 
-mod othello;
-use othello::*;
+mod database;
+mod gui;
+mod logic;
+pub mod entities;
+pub mod errors;
+pub mod traits;
 
+use database::Database;
+use gui::Gui;
+use logic::*;
 use std::path::Path;
 
 fn main() {
@@ -20,7 +27,7 @@ fn main() {
 
     let rules = load_rules();
     let database = Database::new(&Path::new("database.json"));
-    let logic = Logic::new(rules, database);
+    let logic = GameLogic::new(rules, database);
     let gui = Gui::new(logic);
 
     gtk::main();

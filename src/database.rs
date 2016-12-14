@@ -6,14 +6,12 @@ use std::io::prelude::*;
 use std::path::Path;
 
 use errors::Result;
+use traits::DatabaseConnection;
 
 use serde_json;
 
-pub trait DatabaseConnection {
-    fn save_state(&mut self, state: GameStateEntity) -> Result<()>;
-    fn load_state(&self) -> Result<GameStateEntity>;
-}
 
+#[derive(Debug)]
 pub struct Database<'a> {
     location: &'a Path,
 }
@@ -23,6 +21,16 @@ impl<'a> Database<'a> {
         Database {
             location: location,
         }
+    }
+
+    fn get_default_state() -> GameStateEntity {
+        let mut board = HashMap::new();
+        board.insert(Point::new(3, 3), Player::Black);
+        board.insert(Point::new(4, 4), Player::Black);
+        board.insert(Point::new(3, 4), Player::White);
+        board.insert(Point::new(4, 3), Player::White);
+
+        GameStateEntity::new(board, Player::Black, None)
     }
 }
 
@@ -45,15 +53,15 @@ impl<'a> DatabaseConnection for Database<'a> {
 
             Ok(SerializableState::into_state(deserialized))
         } else {
-            let mut board = HashMap::new();
-            board.insert(Point::new(3, 3), Player::Black);
-            board.insert(Point::new(4, 4), Player::Black);
-            board.insert(Point::new(3, 4), Player::White);
-            board.insert(Point::new(4, 3), Player::White);
-
-            Ok(GameStateEntity::new(board, Player::Black, None))
+            Ok(Database::get_default_state())
         }
     }
+
+    fn reset_state(&mut self) -> Result<GameStateEntity> {
+        self.save_state(Database::get_default_state())?;
+        self.load_state()
+    }
+
 }
 
 #[derive(Debug, Serialize, Deserialize)]
