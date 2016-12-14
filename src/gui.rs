@@ -10,17 +10,13 @@ use traits::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-const SQUARE_SIZE: i32 = 50;
+const SQUARE_SIZE: i32 = 75;
 const BOARD_SIZE: i32 = 8;
 
-#[allow(dead_code)]
-pub struct Gui<T: Logic> {
-    logic: Rc<RefCell<T>>,
-    curr_state: Rc<RefCell<GameStateEntity>>,
-}
+pub struct Gui;
 
-impl<T: Logic + 'static> Gui<T> {
-    pub fn new(logic: T) -> Gui<T> {
+impl Gui {
+    pub fn new<T: Logic + 'static>(logic: T) {
         let initial_state = Rc::from(RefCell::from(logic.get_initial_state().unwrap()));
         let logic = Rc::from(RefCell::from(logic));
 
@@ -119,11 +115,5 @@ impl<T: Logic + 'static> Gui<T> {
 
         vbox.add(&grid);
         window.show_all();
-
-        Gui {
-            logic: logic,
-            curr_state: initial_state,
-        }
-
     }
 }
