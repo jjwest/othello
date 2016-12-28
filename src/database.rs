@@ -18,9 +18,7 @@ pub struct Database<'a> {
 
 impl<'a> Database<'a> {
     pub fn new(location: &Path) -> Database {
-        Database {
-            location: location,
-        }
+        Database { location: location }
     }
 
     fn get_default_state() -> GameStateEntity {
@@ -61,7 +59,6 @@ impl<'a> DatabaseConnection for Database<'a> {
         self.save_state(Database::get_default_state())?;
         self.load_state()
     }
-
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -81,10 +78,8 @@ impl SerializableState {
     }
 
     fn into_state(state: SerializableState) -> GameStateEntity {
-        GameStateEntity::new(
-            state.board.into_iter().collect(),
-            state.active_player,
-            state.winner
-        )
+        GameStateEntity::new(state.board.into_iter().collect(),
+                             state.active_player,
+                             state.winner)
     }
 }

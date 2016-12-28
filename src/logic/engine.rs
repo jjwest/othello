@@ -1,6 +1,6 @@
 use entities::*;
 use errors::*;
-use traits::{Logic, DatabaseConnection};
+use traits::*;
 
 use super::RuleBook;
 
@@ -9,13 +9,15 @@ pub struct GameLogic<T: DatabaseConnection> {
     database: T,
 }
 
-impl<D: DatabaseConnection> Logic for GameLogic<D> {
+impl<T> Logic for GameLogic<T>
+    where T: DatabaseConnection
+{
     fn place_tile(&mut self, position: Point) -> Result<GameStateEntity> {
         let mut state = self.database.load_state()?;
 
-        if self.rules.placement_allowed(&position, &state) {
-            state.board.insert(position.clone(), state.active_player);
-            convert_tiles(&position, &mut state);
+        if self.rules.placement_allowed(position, &state) {
+            state.board.insert(position, state.active_player);
+            convert_tiles(position, &mut state);
             state.active_player = match state.active_player {
                 Player::Black => Player::White,
                 Player::White => Player::Black,
@@ -45,12 +47,15 @@ impl<D: DatabaseConnection> GameLogic<D> {
     }
 }
 
-fn convert_tiles(pos: &Point, state: &mut GameStateEntity) {
-    let neighbours = vec![
-        Point::new(pos.x -1, pos.y -1),   Point::new(pos.x, pos.y - 1), Point::new(pos.x + 1, pos.y -1),
-        Point::new(pos.x - 1, pos.y),                                   Point::new(pos.x + 1, pos.y),
-        Point::new(pos.x - 1, pos.y + 1), Point::new(pos.x, pos.y + 1), Point::new(pos.x + 1, pos.y + 1)
-    ];
+fn convert_tiles(pos: Point, state: &mut GameStateEntity) {
+    let neighbours = vec![Point::new(pos.x - 1, pos.y - 1),
+                          Point::new(pos.x, pos.y - 1),
+                          Point::new(pos.x + 1, pos.y - 1),
+                          Point::new(pos.x - 1, pos.y),
+                          Point::new(pos.x + 1, pos.y),
+                          Point::new(pos.x - 1, pos.y + 1),
+                          Point::new(pos.x, pos.y + 1),
+                          Point::new(pos.x + 1, pos.y + 1)];
 
     let mut tiles_to_swap = Vec::new();
 
@@ -60,14 +65,16 @@ fn convert_tiles(pos: &Point, state: &mut GameStateEntity) {
                 let delta_x = neighbour.x - pos.x;
                 let delta_y = neighbour.y - pos.y;
                 let mut distance = 2;
-                let mut next_pos = Point::new(pos.x + delta_x * distance, pos.y + delta_y * distance);
+                let mut next_pos = Point::new(pos.x + delta_x * distance,
+                                              pos.y + delta_y * distance);
                 let mut middle_tiles = vec![neighbour];
 
                 while let Some(next_tile) = state.board.get(&next_pos) {
                     if *next_tile == *neighbour_tile {
                         middle_tiles.push(next_pos);
                         distance += 1;
-                        next_pos = Point::new(pos.x + delta_x * distance, pos.y + delta_y * distance);
+                        next_pos = Point::new(pos.x + delta_x * distance,
+                                              pos.y + delta_y * distance);
                     } else {
                         tiles_to_swap.append(&mut middle_tiles);
                         break;

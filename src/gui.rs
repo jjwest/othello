@@ -1,7 +1,6 @@
 use gtk::prelude::*;
-use gtk::{Box, Button, DrawingArea, Grid,
-          Menu, MenuBar, MenuItem, Orientation,
-          Overlay, Window, WindowPosition, WindowType};
+use gtk::{Box, Button, DrawingArea, Grid, Menu, MenuBar, MenuItem, Orientation, Overlay, Window,
+          WindowPosition, WindowType};
 use gtk;
 
 use entities::*;
@@ -9,6 +8,7 @@ use traits::*;
 
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::f64::consts;
 
 const SQUARE_SIZE: i32 = 75;
 const BOARD_SIZE: i32 = 8;
@@ -39,8 +39,8 @@ impl Gui {
         let othello_menu = Menu::new();
         let new_game = MenuItem::new_with_label("Start new game");
         let quit = MenuItem::new_with_label("Quit");
+        quit.connect_activate(|_| gtk::main_quit());
         let grid = Grid::new();
-
 
         {
             let state = initial_state.clone();
@@ -51,8 +51,6 @@ impl Gui {
                 grid.queue_draw();
             });
         }
-        quit.connect_activate(|_| gtk::main_quit());
-
 
         othello_menu.append(&new_game);
         othello_menu.append(&quit);
@@ -71,21 +69,20 @@ impl Gui {
                     cr.rectangle(0.0, 0.0, SQUARE_SIZE as f64, SQUARE_SIZE as f64);
                     cr.fill_preserve();
                     cr.set_source_rgb(0.0, 0.0, 0.0);
-                    cr.stroke_preserve();
+                    cr.stroke();
 
                     if let Some(tile) = state.borrow().board.get(&Point::new(x, y)) {
                         match *tile {
-                            Player::Black => {
-                                cr.set_source_rgb(0.0, 0.0, 0.0);
-                                cr.fill();
-                            },
-                            Player::White => {
-                                cr.set_source_rgb(1.0, 1.0, 1.0);
-                                cr.fill();
-                            },
+                            Player::Black => cr.set_source_rgb(0.0, 0.0, 0.0),
+                            Player::White => cr.set_source_rgb(1.0, 1.0, 1.0),
                         }
-                    } else {
-                        cr.new_path();
+
+                        cr.arc(38.0,
+                               38.0,
+                               (SQUARE_SIZE / 2 - 10) as f64,
+                               0.,
+                               2. * consts::PI);
+                        cr.fill();
                     }
 
                     Inhibit(false)

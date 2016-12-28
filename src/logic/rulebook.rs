@@ -14,7 +14,7 @@ impl RuleBook {
         self.rules.push(rule);
     }
 
-    pub fn placement_allowed(&self, pos: &Point, state: &GameStateEntity) -> bool {
+    pub fn placement_allowed(&self, pos: Point, state: &GameStateEntity) -> bool {
         self.rules.iter().all(|rule| rule.is_valid(pos, state))
     }
 }

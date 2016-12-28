@@ -16,6 +16,7 @@ pub mod traits;
 use database::Database;
 use gui::Gui;
 use logic::*;
+
 use std::path::Path;
 
 fn main() {
@@ -27,15 +28,15 @@ fn main() {
     let rules = load_rules();
     let database = Database::new(&Path::new("database.json"));
     let logic = GameLogic::new(rules, database);
-    let gui = Gui::new(logic);
+    Gui::new(logic);
 
     gtk::main();
 }
 
 fn load_rules() -> RuleBook {
-    let mut rules = RuleBook::new();
-    rules.add_rule(Box::new(MustExistAdjacentEnemy));
-    rules.add_rule(Box::new(MustExistConnectedFriendly));
+    let mut rulebook = RuleBook::new();
+    rulebook.add_rule(Box::new(MustExistAdjacentEnemy));
+    rulebook.add_rule(Box::new(MustExistConnectedFriendly));
 
-    rules
+    rulebook
 }
