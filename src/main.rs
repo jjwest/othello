@@ -1,4 +1,6 @@
-#![feature(proc_macro)]
+#![feature(plugin)]
+
+#![plugin(clippy)]
 
 extern crate gtk;
 extern crate serde;
@@ -26,9 +28,9 @@ fn main() {
     }
 
     let rules = load_rules();
-    let database = Database::new(&Path::new("database.json"));
+    let database = Database::new(Path::new("database.json"));
     let logic = GameLogic::new(rules, database);
-    Gui::new(logic);
+    Gui::create(logic);
 
     gtk::main();
 }

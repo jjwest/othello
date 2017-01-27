@@ -16,7 +16,7 @@ const BOARD_SIZE: i32 = 8;
 pub struct Gui;
 
 impl Gui {
-    pub fn new<T: Logic + 'static>(logic: T) {
+    pub fn create<T: Logic + 'static>(logic: T) {
         let initial_state = Rc::from(RefCell::from(logic.get_initial_state().unwrap()));
         let logic = Rc::from(RefCell::from(logic));
 

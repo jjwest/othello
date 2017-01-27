@@ -68,7 +68,7 @@ struct SerializableState {
     board: Vec<(Point, Player)>,
 }
 
-impl SerializableState {
+impl From<GameStateEntity> for SerializableState {
     fn from(state: GameStateEntity) -> SerializableState {
         SerializableState {
             active_player: state.active_player,
@@ -76,10 +76,12 @@ impl SerializableState {
             board: state.board.into_iter().collect(),
         }
     }
+}
 
-    fn into_state(state: SerializableState) -> GameStateEntity {
-        GameStateEntity::new(state.board.into_iter().collect(),
-                             state.active_player,
-                             state.winner)
+impl SerializableState {
+    fn into_state(self) -> GameStateEntity {
+        GameStateEntity::new(self.board.into_iter().collect(),
+                             self.active_player,
+                             self.winner)
     }
 }
