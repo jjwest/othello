@@ -29,10 +29,6 @@ pub struct GameStateEntity {
 
 impl GameStateEntity {
     pub fn new(board: GameBoard, active_player: Player, winner: Option<Player>) -> GameStateEntity {
-        GameStateEntity {
-            board: board,
-            active_player: active_player,
-            winner: winner,
-        }
+        GameStateEntity { board, active_player, winner }
     }
 }

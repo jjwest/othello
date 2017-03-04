@@ -1,6 +1,7 @@
-use serde_json;
 use std::io;
 use std::result;
+
+use serde_json;
 
 pub type Result<T> = result::Result<T, Error>;
 

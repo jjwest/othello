@@ -1,12 +1,13 @@
-#![feature(plugin)]
-
-#![plugin(clippy)]
-
 extern crate gtk;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+
+use std::path::Path;
+
+#[macro_use]
+pub mod macros;
 
 mod database;
 mod gui;
@@ -19,26 +20,15 @@ use database::Database;
 use gui::Gui;
 use logic::*;
 
-use std::path::Path;
-
 fn main() {
     if gtk::init().is_err() {
-        println!("Failed to initialize GTK.");
+        errln!("Failed to initialize GTK.");
         return;
     }
 
-    let rules = load_rules();
-    let database = Database::new(Path::new("database.json"));
-    let logic = GameLogic::new(rules, database);
+    let database = Database::new(Path::new("saved_state.json"));
+    let logic = GameLogic::new(database);
     Gui::create(logic);
 
     gtk::main();
-}
-
-fn load_rules() -> RuleBook {
-    let mut rulebook = RuleBook::new();
-    rulebook.add_rule(Box::new(MustExistAdjacentEnemy));
-    rulebook.add_rule(Box::new(MustExistConnectedFriendly));
-
-    rulebook
 }

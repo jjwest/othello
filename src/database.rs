@@ -1,14 +1,12 @@
-use super::entities::{Point, Player, GameStateEntity};
-
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
 use errors::Result;
-use traits::DatabaseConnection;
-
 use serde_json;
+use super::entities::{Point, Player, GameStateEntity};
+use traits::DatabaseConnection;
 
 
 #[derive(Debug)]
@@ -18,7 +16,7 @@ pub struct Database<'a> {
 
 impl<'a> Database<'a> {
     pub fn new(location: &Path) -> Database {
-        Database { location: location }
+        Database { location }
     }
 
     fn get_default_state() -> GameStateEntity {
@@ -47,9 +45,9 @@ impl<'a> DatabaseConnection for Database<'a> {
         if let Ok(mut file) = File::open(self.location) {
             let mut serialized = String::new();
             file.read_to_string(&mut serialized)?;
-            let deserialized = serde_json::from_str(&serialized)?;
+            let deserialized: SerializableState = serde_json::from_str(&serialized)?;
 
-            Ok(SerializableState::into_state(deserialized))
+            Ok(deserialized.into())
         } else {
             Ok(Database::get_default_state())
         }
@@ -68,6 +66,14 @@ struct SerializableState {
     board: Vec<(Point, Player)>,
 }
 
+impl Into<GameStateEntity> for SerializableState {
+    fn into(self) -> GameStateEntity {
+        GameStateEntity::new(self.board.into_iter().collect(),
+                             self.active_player,
+                             self.winner)
+    }
+}
+
 impl From<GameStateEntity> for SerializableState {
     fn from(state: GameStateEntity) -> SerializableState {
         SerializableState {
@@ -75,13 +81,5 @@ impl From<GameStateEntity> for SerializableState {
             winner: state.winner,
             board: state.board.into_iter().collect(),
         }
-    }
-}
-
-impl SerializableState {
-    fn into_state(self) -> GameStateEntity {
-        GameStateEntity::new(self.board.into_iter().collect(),
-                             self.active_player,
-                             self.winner)
     }
 }

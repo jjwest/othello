@@ -1,14 +1,12 @@
+use std::cell::RefCell;
+use std::f64::consts;
+use std::rc::Rc;
+
 use gtk::prelude::*;
-use gtk::{Box, Button, DrawingArea, Grid, Menu, MenuBar, MenuItem, Orientation, Overlay, Window,
-          WindowPosition, WindowType};
 use gtk;
 
 use entities::*;
 use traits::*;
-
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::f64::consts;
 
 const SQUARE_SIZE: i32 = 75;
 const BOARD_SIZE: i32 = 8;
@@ -20,10 +18,10 @@ impl Gui {
         let initial_state = Rc::from(RefCell::from(logic.get_initial_state().unwrap()));
         let logic = Rc::from(RefCell::from(logic));
 
-        let window = Window::new(WindowType::Toplevel);
+        let window = gtk::Window::new(gtk::WindowType::Toplevel);
         window.set_title("Othello");
         window.set_border_width(10);
-        window.set_position(WindowPosition::Center);
+        window.set_position(gtk::WindowPosition::Center);
         window.set_size_request(600, 600);
         window.set_resizable(false);
         window.connect_delete_event(|_, _| {
@@ -31,16 +29,16 @@ impl Gui {
             Inhibit(false)
         });
 
-        let vbox = Box::new(Orientation::Vertical, 2);
+        let vbox = gtk::Box::new(gtk::Orientation::Vertical, 2);
         window.add(&vbox);
 
-        let menu_bar = MenuBar::new();
-        let othello = MenuItem::new_with_label("Othello");
-        let othello_menu = Menu::new();
-        let new_game = MenuItem::new_with_label("Start new game");
-        let quit = MenuItem::new_with_label("Quit");
+        let menu_bar = gtk::MenuBar::new();
+        let othello = gtk::MenuItem::new_with_label("Othello");
+        let othello_menu = gtk::Menu::new();
+        let new_game = gtk::MenuItem::new_with_label("Start new game");
+        let quit = gtk::MenuItem::new_with_label("Quit");
         quit.connect_activate(|_| gtk::main_quit());
-        let grid = Grid::new();
+        let grid = gtk::Grid::new();
 
         {
             let state = initial_state.clone();
@@ -61,7 +59,7 @@ impl Gui {
 
         for y in 0..BOARD_SIZE {
             for x in 0..BOARD_SIZE {
-                let background = DrawingArea::new();
+                let background = gtk::DrawingArea::new();
                 background.set_size_request(SQUARE_SIZE, SQUARE_SIZE);
                 let state = initial_state.clone();
                 background.connect_draw(move |_, cr| {
@@ -88,11 +86,11 @@ impl Gui {
                     Inhibit(false)
                 });
 
-                let button = Button::new();
+                let button = gtk::Button::new();
                 button.set_size_request(50, 50);
                 button.set_opacity(0.0);
 
-                let overlay = Overlay::new();
+                let overlay = gtk::Overlay::new();
                 overlay.add(&background);
                 overlay.add_overlay(&button);
                 grid.attach(&overlay, x, y, 1, 1);
