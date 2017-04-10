@@ -54,7 +54,7 @@ fn has_adjacent_enemy(pos: Point, state: &GameStateEntity) -> bool {
                 }
             }
         }
-    } 
+    }
     false
 }
 
@@ -74,21 +74,22 @@ fn has_connected_friendly(pos: Point, state: &GameStateEntity) -> bool {
                 let delta_x = neighbour.x - pos.x;
                 let delta_y = neighbour.y - pos.y;
                 let mut distance = 2;
-                let mut next_pos = Point::new(pos.x + delta_x * distance,
-                                              pos.y + delta_y * distance);
+                let mut next_pos =
+                    Point::new(pos.x + delta_x * distance, pos.y + delta_y * distance);
 
                 while let Some(next) = state.board.get(&next_pos) {
                     if *next == state.active_player {
                         return true;
                     } else {
                         distance += 1;
-                        next_pos = Point::new(pos.x + delta_x * distance,
-                                              pos.y + delta_y * distance);
+                        next_pos =
+                            Point::new(pos.x + delta_x * distance, pos.y + delta_y * distance);
                     }
                 }
             }
         }
     }
+
     false
 }
 fn convert_tiles(origin: Point, state: &mut GameStateEntity) {
@@ -99,31 +100,33 @@ fn convert_tiles(origin: Point, state: &mut GameStateEntity) {
 
     let mut tiles_to_convert = Vec::new();
 
-    let neighbours = vec![Point::new(origin.x - 1, origin.y - 1),
-                          Point::new(origin.x, origin.y - 1),
-                          Point::new(origin.x + 1, origin.y - 1),
-                          Point::new(origin.x - 1, origin.y),
-                          Point::new(origin.x + 1, origin.y),
-                          Point::new(origin.x - 1, origin.y + 1),
-                          Point::new(origin.x, origin.y + 1),
-                          Point::new(origin.x + 1, origin.y + 1)];
+    let neighbours = [Point::new(origin.x - 1, origin.y - 1),
+                      Point::new(origin.x, origin.y - 1),
+                      Point::new(origin.x + 1, origin.y - 1),
+                      Point::new(origin.x - 1, origin.y),
+                      Point::new(origin.x + 1, origin.y),
+                      Point::new(origin.x - 1, origin.y + 1),
+                      Point::new(origin.x, origin.y + 1),
+                      Point::new(origin.x + 1, origin.y + 1)];
 
-    for neighbour in neighbours {
+    for neighbour in neighbours.iter().cloned() {
         if let Some(neighbour_color) = state.board.get(&neighbour) {
             if *neighbour_color == opponent_color {
                 let delta_x = neighbour.x - origin.x;
                 let delta_y = neighbour.y - origin.y;
                 let mut distance = 2;
-                let mut next_pos = Point::new(origin.x + delta_x * distance,
-                                              origin.y + delta_y * distance);
+                let mut next_pos =
+                    Point::new(origin.x + delta_x * distance, origin.y + delta_y * distance);
                 let mut middle_tiles = vec![neighbour];
 
                 while let Some(next_tile) = state.board.get(&next_pos) {
                     if *next_tile == opponent_color {
                         middle_tiles.push(next_pos);
                         distance += 1;
-                        next_pos = Point::new(origin.x + delta_x * distance,
-                                              origin.y + delta_y * distance);
+                        next_pos = Point::new(
+                            origin.x + delta_x * distance,
+                            origin.y + delta_y * distance,
+                        );
                     } else {
                         tiles_to_convert.append(&mut middle_tiles);
                         break;

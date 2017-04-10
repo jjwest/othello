@@ -24,10 +24,12 @@ impl Gui {
         window.set_position(gtk::WindowPosition::Center);
         window.set_size_request(600, 600);
         window.set_resizable(false);
-        window.connect_delete_event(|_, _| {
-            gtk::main_quit();
-            Inhibit(false)
-        });
+        window.connect_delete_event(
+            |_, _| {
+                gtk::main_quit();
+                Inhibit(false)
+            },
+        );
 
         let vbox = gtk::Box::new(gtk::Orientation::Vertical, 2);
         window.add(&vbox);
@@ -44,10 +46,12 @@ impl Gui {
             let state = initial_state.clone();
             let logic = logic.clone();
             let grid = grid.clone();
-            new_game.connect_activate(move |_| {
-                *state.borrow_mut() = logic.borrow_mut().reset_state().unwrap();
-                grid.queue_draw();
-            });
+            new_game.connect_activate(
+                move |_| {
+                    *state.borrow_mut() = logic.borrow_mut().reset_state().unwrap();
+                    grid.queue_draw();
+                },
+            );
         }
 
         othello_menu.append(&new_game);
@@ -62,29 +66,33 @@ impl Gui {
                 let background = gtk::DrawingArea::new();
                 background.set_size_request(SQUARE_SIZE, SQUARE_SIZE);
                 let state = initial_state.clone();
-                background.connect_draw(move |_, cr| {
-                    cr.set_source_rgb(0.0, 0.4, 0.0);
-                    cr.rectangle(0.0, 0.0, SQUARE_SIZE as f64, SQUARE_SIZE as f64);
-                    cr.fill_preserve();
-                    cr.set_source_rgb(0.0, 0.0, 0.0);
-                    cr.stroke();
+                background.connect_draw(
+                    move |_, cr| {
+                        cr.set_source_rgb(0.0, 0.4, 0.0);
+                        cr.rectangle(0.0, 0.0, SQUARE_SIZE as f64, SQUARE_SIZE as f64);
+                        cr.fill_preserve();
+                        cr.set_source_rgb(0.0, 0.0, 0.0);
+                        cr.stroke();
 
-                    if let Some(tile) = state.borrow().board.get(&Point::new(x, y)) {
-                        match *tile {
-                            Player::Black => cr.set_source_rgb(0.0, 0.0, 0.0),
-                            Player::White => cr.set_source_rgb(1.0, 1.0, 1.0),
+                        if let Some(tile) = state.borrow().board.get(&Point::new(x, y)) {
+                            match *tile {
+                                Player::Black => cr.set_source_rgb(0.0, 0.0, 0.0),
+                                Player::White => cr.set_source_rgb(1.0, 1.0, 1.0),
+                            }
+
+                            cr.arc(
+                                38.0,
+                                38.0,
+                                (SQUARE_SIZE / 2 - 10) as f64,
+                                0.,
+                                2. * consts::PI,
+                            );
+                            cr.fill();
                         }
 
-                        cr.arc(38.0,
-                               38.0,
-                               (SQUARE_SIZE / 2 - 10) as f64,
-                               0.,
-                               2. * consts::PI);
-                        cr.fill();
-                    }
-
-                    Inhibit(false)
-                });
+                        Inhibit(false)
+                    },
+                );
 
                 let button = gtk::Button::new();
                 button.set_size_request(50, 50);
@@ -98,13 +106,15 @@ impl Gui {
                 let logic = logic.clone();
                 let state = initial_state.clone();
                 let grid = grid.clone();
-                button.connect_clicked(move |_| {
-                    let mut logic = logic.borrow_mut();
-                    if let Ok(new_state) = logic.place_tile(Point::new(x, y)) {
-                        *state.borrow_mut() = new_state;
-                        grid.queue_draw();
-                    }
-                });
+                button.connect_clicked(
+                    move |_| {
+                        let mut logic = logic.borrow_mut();
+                        if let Ok(new_state) = logic.place_tile(Point::new(x, y)) {
+                            *state.borrow_mut() = new_state;
+                            grid.queue_draw();
+                        }
+                    },
+                );
             }
         }
 

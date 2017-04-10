@@ -68,9 +68,11 @@ struct SerializableState {
 
 impl Into<GameStateEntity> for SerializableState {
     fn into(self) -> GameStateEntity {
-        GameStateEntity::new(self.board.into_iter().collect(),
-                             self.active_player,
-                             self.winner)
+        GameStateEntity::new(
+            self.board.into_iter().collect(),
+            self.active_player,
+            self.winner,
+        )
     }
 }
 
