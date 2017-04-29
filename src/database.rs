@@ -5,7 +5,7 @@ use std::path::Path;
 
 use errors::Result;
 use serde_json;
-use super::entities::{Point, Player, GameStateEntity};
+use entities::{Point, Player, GameStateEntity};
 use traits::DatabaseConnection;
 
 

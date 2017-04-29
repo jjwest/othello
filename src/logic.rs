@@ -7,7 +7,8 @@ pub struct GameLogic<D: DatabaseConnection> {
 }
 
 impl<D> Logic for GameLogic<D>
-    where D: DatabaseConnection
+where
+    D: DatabaseConnection,
 {
     fn place_tile(&mut self, position: Point) -> Result<GameStateEntity> {
         let mut state = self.database.load_state()?;
@@ -59,14 +60,16 @@ fn has_adjacent_enemy(pos: Point, state: &GameStateEntity) -> bool {
 }
 
 fn has_connected_friendly(pos: Point, state: &GameStateEntity) -> bool {
-    let neighbours = vec![Point::new(pos.x - 1, pos.y - 1),
-                          Point::new(pos.x, pos.y - 1),
-                          Point::new(pos.x + 1, pos.y - 1),
-                          Point::new(pos.x - 1, pos.y),
-                          Point::new(pos.x + 1, pos.y),
-                          Point::new(pos.x - 1, pos.y + 1),
-                          Point::new(pos.x, pos.y + 1),
-                          Point::new(pos.x + 1, pos.y + 1)];
+    let neighbours = vec![
+        Point::new(pos.x - 1, pos.y - 1),
+        Point::new(pos.x, pos.y - 1),
+        Point::new(pos.x + 1, pos.y - 1),
+        Point::new(pos.x - 1, pos.y),
+        Point::new(pos.x + 1, pos.y),
+        Point::new(pos.x - 1, pos.y + 1),
+        Point::new(pos.x, pos.y + 1),
+        Point::new(pos.x + 1, pos.y + 1),
+    ];
 
     for neighbour in neighbours {
         if let Some(tile) = state.board.get(&Point::new(neighbour.x, neighbour.y)) {
@@ -100,16 +103,18 @@ fn convert_tiles(origin: Point, state: &mut GameStateEntity) {
 
     let mut tiles_to_convert = Vec::new();
 
-    let neighbours = [Point::new(origin.x - 1, origin.y - 1),
-                      Point::new(origin.x, origin.y - 1),
-                      Point::new(origin.x + 1, origin.y - 1),
-                      Point::new(origin.x - 1, origin.y),
-                      Point::new(origin.x + 1, origin.y),
-                      Point::new(origin.x - 1, origin.y + 1),
-                      Point::new(origin.x, origin.y + 1),
-                      Point::new(origin.x + 1, origin.y + 1)];
+    let neighbours = vec![
+        Point::new(origin.x - 1, origin.y - 1),
+        Point::new(origin.x, origin.y - 1),
+        Point::new(origin.x + 1, origin.y - 1),
+        Point::new(origin.x - 1, origin.y),
+        Point::new(origin.x + 1, origin.y),
+        Point::new(origin.x - 1, origin.y + 1),
+        Point::new(origin.x, origin.y + 1),
+        Point::new(origin.x + 1, origin.y + 1),
+    ];
 
-    for neighbour in neighbours.iter().cloned() {
+    for neighbour in neighbours {
         if let Some(neighbour_color) = state.board.get(&neighbour) {
             if *neighbour_color == opponent_color {
                 let delta_x = neighbour.x - origin.x;
