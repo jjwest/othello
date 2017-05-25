@@ -5,6 +5,7 @@ authors = ["jonas"]
 
 [dependencies]
 clippy = "*"
+error-chain = "*"
 serde = "*"
 serde_derive = "*"
 serde_json = "*"

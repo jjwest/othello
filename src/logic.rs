@@ -103,7 +103,7 @@ fn convert_tiles(origin: Point, state: &mut GameStateEntity) {
 
     let mut tiles_to_convert = Vec::new();
 
-    let neighbours = vec![
+    let neighbour_positions = vec![
         Point::new(origin.x - 1, origin.y - 1),
         Point::new(origin.x, origin.y - 1),
         Point::new(origin.x + 1, origin.y - 1),
@@ -114,15 +114,15 @@ fn convert_tiles(origin: Point, state: &mut GameStateEntity) {
         Point::new(origin.x + 1, origin.y + 1),
     ];
 
-    for neighbour in neighbours {
-        if let Some(neighbour_color) = state.board.get(&neighbour) {
+    for pos in neighbour_positions {
+        if let Some(neighbour_color) = state.board.get(&pos) {
             if *neighbour_color == opponent_color {
-                let delta_x = neighbour.x - origin.x;
-                let delta_y = neighbour.y - origin.y;
+                let delta_x = pos.x - origin.x;
+                let delta_y = pos.y - origin.y;
                 let mut distance = 2;
                 let mut next_pos =
                     Point::new(origin.x + delta_x * distance, origin.y + delta_y * distance);
-                let mut middle_tiles = vec![neighbour];
+                let mut middle_tiles = vec![pos];
 
                 while let Some(next_tile) = state.board.get(&next_pos) {
                     if *next_tile == opponent_color {

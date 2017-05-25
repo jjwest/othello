@@ -3,9 +3,9 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use errors::Result;
-use serde_json;
 use entities::{Point, Player, GameStateEntity};
+use errors::*;
+use serde_json;
 use traits::DatabaseConnection;
 
 

@@ -1,13 +1,12 @@
 extern crate gtk;
+#[macro_use]
+extern crate error_chain;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 
 use std::path::Path;
-
-#[macro_use]
-pub mod macros;
 
 mod database;
 mod gui;
@@ -18,11 +17,11 @@ pub mod traits;
 
 use database::Database;
 use gui::Gui;
-use logic::*;
+use logic::GameLogic;
 
 fn main() {
     if gtk::init().is_err() {
-        errln!("Failed to initialize GTK.");
+        eprintln!("Failed to initialize GTK.");
         return;
     }
 

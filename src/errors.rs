@@ -1,24 +1,6 @@
-use std::io;
-use std::result;
-
-use serde_json;
-
-pub type Result<T> = result::Result<T, Error>;
-
-#[derive(Debug)]
-pub enum Error {
-    Json(serde_json::Error),
-    Io(io::Error),
-}
-
-impl From<io::Error> for Error {
-    fn from(err: io::Error) -> Error {
-        Error::Io(err)
-    }
-}
-
-impl From<serde_json::Error> for Error {
-    fn from(err: serde_json::Error) -> Error {
-        Error::Json(err)
+error_chain!{
+    foreign_links {
+        Serde(::serde_json::Error);
+        Io(::std::io::Error);
     }
 }
